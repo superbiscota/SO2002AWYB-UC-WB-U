@@ -1,22 +1,7 @@
 /*
-  ASCII table
 
-  Prints out byte values in all possible formats:
-  - as raw binary values
-  - as ASCII-encoded decimal, hex, octal, and binary values
+   ( ˘ω˘)ｽﾔｧ
 
-  For more on ASCII, see http://www.asciitable.com and http://en.wikipedia.org/wiki/ASCII
-
-  The circuit: No external hardware needed.
-
-  created 2006
-  by Nicholas Zambetti <http://www.zambetti.com>
-  modified 9 Apr 2012
-  by Tom Igoe
-
-  This example code is in the public domain.
-
-  https://www.arduino.cc/en/Tutorial/BuiltInExamples/ASCIITable
 */
 
 #include <Wire.h>
