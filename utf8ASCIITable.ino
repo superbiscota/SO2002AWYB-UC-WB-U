@@ -6,13 +6,11 @@
 
 #include <Wire.h>
 #include "SO2002A_I2C.h"
-#define SDA 19
-#define SCL 33
+#define SDA 32
+#define SCL 26
 
 SO2002A_I2C oled(0x3c);
-
- int chars_code_buf[255] = {}; // 0 でおわる
- 
+int chars_code_buf[255] = {}; // 0 でおわる
 
 void push (int num) {
      for (int itr = 0 ; itr < 256; itr++) {
@@ -21,6 +19,12 @@ void push (int num) {
         break;
         }
      }
+}
+
+void cls_buffer () {
+     for (int itr = 0 ; itr < 256; itr++) {
+        chars_code_buf[itr] = 0;
+        }
 }
 
 void dump () {
@@ -33,48 +37,8 @@ void dump () {
     }
 }
 
-
-void pp () {
-     
-     char caret = 0;
-     char line  = 0;
-
-     oled.selectCharacterRom(SO2002A_I2C_CHARACTER_ROM_B);
-     for (int itr = 0 ; itr < 256; itr++) {
-      if (chars_code_buf[itr] == 0 ) {
-        break;
-       } else {
-
-        
-        if (chars_code_buf[itr] >= 256) {
-        // utf8 charctor   
-         char rus_char = chars_code_buf[itr] - 53392 ; // А　
-         
-         oled.setCursor(caret,line);
-         oled.write(rus_char + 0x80);
-         Serial.println(rus_char,HEX);
-  
-        } else {
-        // ascii charctor   
-         char ascii_char = chars_code_buf[itr];
-         oled.write(ascii_char);
-        }
-        
-        caret++;
-         if (caret > 19) {
-          line = 1 ;
-          caret = 0; 
-         }
-       
-     }
-    }
-}
-
-
 void convert_to_code(char *str) {
-
    for (int itr = 0 ; itr < 256; itr++) {
-    
      if (char ((str[itr]>>7)&1 )  == 0 )  {     // 1bit 目が0なら1バイト文字
       push (int (str[itr]));
       itr = itr + 0;
@@ -91,7 +55,34 @@ void convert_to_code(char *str) {
       push (int(str[itr]) *256*256*256 + int(str[itr+1]) * 256 *256 + int(str[itr+2]) * 256 + int(str[itr+3]));
       itr = itr + 3;
      }
-    
+    }
+}
+
+void pp () {
+     char caret = 0;
+     char line  = 0;
+     oled.selectCharacterRom(SO2002A_I2C_CHARACTER_ROM_B);
+     for (int itr = 0 ; itr < 256; itr++) {
+      if (chars_code_buf[itr] == 0 ) {
+        break;
+       } else {
+        if (chars_code_buf[itr] >= 256) {
+        // utf8 charctor   
+         char rus_char = chars_code_buf[itr] - 53392 ; // А　
+         oled.setCursor(caret,line);
+         oled.write(rus_char + 0x80);
+         //Serial.println(rus_char,HEX);
+        } else {
+        // ascii charctor   
+         char ascii_char = chars_code_buf[itr];
+         oled.write(ascii_char);
+        }
+        caret++;
+         if (caret > 19) {
+          line = 1 ;
+          caret = 0; 
+         }
+     }
     }
 }
 
@@ -102,23 +93,24 @@ void setup() {
     ; // wait for serial port to connect. Needed for native USB port only
   }
 
-
   Wire.begin(SDA,SCL);
-  Wire.setClock(400000);
-      
-  
+  //Wire.setClock(400000);
   oled.clear();
   oled.begin(20, 2);
-
-  char str[256] = "ОТ СУМЫ ДА ТЮРЬМЫ НЕ ЗАРЕКАЙСЯ";
-  convert_to_code(str);
   //dump();
-  pp();
 }
-
-
-
 
 void loop() {
 
+  // put your main code here, to run repeatedly:
+  char data1[] = "I2C OLED YELLOW 20x2";
+  char data2[] = "HELLO WORLD !!";
+
+  cls_buffer();
+  char str[256] = "УМ ";
+
+  //oled.setCursor(0,7);
+  convert_to_code(str);
+  pp();
+  delay(1000);  
 }
